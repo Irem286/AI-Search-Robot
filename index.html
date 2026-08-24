@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Search Robot</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    color: white;
+    background: #030512;
+}
+
+/* MOVING LIGHT BACKGROUND */
+
+.background {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    z-index: -2;
+    background:
+        radial-gradient(circle at 50% 120%,
+        rgba(120, 30, 255, .45),
+        transparent 45%),
+        #030512;
+}
+
+.light {
+    position: absolute;
+    bottom: -220px;
+    width: 700px;
+    height: 500px;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: .65;
+    animation: moveLight 8s ease-in-out infinite alternate;
+}
+
+.light.one {
+    left: -150px;
+    background: #006eff;
+}
+
+.light.two {
+    left: 35%;
+    background: #762cff;
+    animation-delay: -3s;
+}
+
+.light.three {
+    right: -150px;
+    background: #d21eff;
+    animation-delay: -5s;
+}
+
+@keyframes moveLight {
+    from {
+        transform: translateY(60px) scale(.9);
+    }
+
+    to {
+        transform: translateY(-80px) scale(1.15);
+    }
+}
+
+/* MAIN LAYOUT */
+
+.layout {
+    height: 100vh;
+    padding: 22px;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 20px;
+}
+
+.glass {
+    background: rgba(7, 10, 30, .78);
+    border: 1px solid rgba(125, 105, 255, .25);
+    backdrop-filter: blur(22px);
+    box-shadow: 0 0 40px rgba(50, 40, 255, .10);
+}
+
+/* SIDEBAR */
+
+.sidebar {
+    border-radius: 26px;
+    padding: 25px 18px;
+    display: flex;
+    flex-direction: column;
+}
+
+.logo {
+    text-align: center;
+    font-size: 55px;
+}
+
+.sidebar h2 {
+    text-align: center;
+    margin: 12px 0 5px;
+}
+
+.tagline {
+    text-align: center;
+    color: #8f97ad;
+    font-size: 13px;
+}
+
+.menu {
+    margin-top: 38px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.menu button {
+    border: 0;
+    background: transparent;
+    color: #aeb6ca;
+    padding: 14px;
+    text-align: left;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.menu button:hover,
+.menu button.active {
+    color: white;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(55, 80, 255, .30),
+            rgba(160, 35, 230, .25)
+        );
+}
+
+.online {
+    margin-top: auto;
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(0,0,0,.20);
+    color: #cbd2e0;
+}
+
+.dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    background: #28e49b;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #28e49b;
+    margin-right: 7px;
+}
+
+.model {
+    margin-top: 6px;
+    color: #7f899f;
+    font-size: 12px;
+}
+
+/* CHAT PANEL */
+
+.main {
+    min-width: 0;
+    border-radius: 26px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.topbar {
+    padding: 24px 28px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title h1 {
+    margin: 0;
+    font-size: 31px;
+    background:
+        linear-gradient(90deg,#58caff,#8060ff,#d65aff);
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.title p {
+    color: #8d96aa;
+    margin: 7px 0 0;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 13px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.04);
+    color: white;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+/* CHAT */
+
+.chat {
+    flex: 1;
+    padding: 27px;
+    overflow-y: auto;
+}
+
+.message-row {
+    display: flex;
+    margin-bottom: 18px;
+}
+
+.message-row.user {
+    justify-content: flex-end;
+}
+
+.message {
+    max-width: 70%;
+    padding: 14px 18px;
+    border-radius: 18px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+}
+
+.user .message {
+    background: linear-gradient(135deg,#6c2cda,#3157ef);
+}
+
+.bot .message {
+    background: rgba(20,25,52,.92);
+    border: 1px solid rgba(255,255,255,.08);
+}
+
+/* INPUT */
+
+.composer-area {
+    padding: 16px 25px 24px;
+}
+
+.composer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px;
+    border-radius: 20px;
+    border: 1px solid rgba(60,170,255,.55);
+    background: rgba(5,8,26,.85);
+}
+
+#searchInput {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    color: white;
+    padding: 12px;
+    font-size: 16px;
+}
+
+.circle {
+    width: 45px;
+    height: 45px;
+    border-radius: 13px;
+    border: 0;
+    color: white;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+#speakButton {
+    background: rgba(255,255,255,.07);
+}
+
+#sendButton {
+    background: linear-gradient(135deg,#326cff,#a52de0);
+}
+
+.footer {
+    text-align: center;
+    margin-top: 10px;
+    color: #687287;
+    font-size: 11px;
+}
+
+/* MODAL */
+
+.modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.60);
+    z-index: 10;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal {
+    width: min(500px,90%);
+    padding: 25px;
+    border-radius: 22px;
+    background: #0b1026;
+    border: 1px solid rgba(125,100,255,.4);
+}
+
+.modal h2 {
+    margin-top: 0;
+}
+
+.modal select,
+.modal button {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+.modal select {
+    background: #111733;
+    color: white;
+    border: 1px solid #333d66;
+}
+
+.modal button {
+    border: 0;
+    cursor: pointer;
+}
+
+.close {
+    background: #6336d7;
+    color: white;
+}
+
+.history-item {
+    padding: 10px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+/* LIGHT MODE */
+
+body.light-mode {
+    color: #10152a;
+    background: #eef1fa;
+}
+
+body.light-mode .glass {
+    background: rgba(255,255,255,.88);
+}
+
+body.light-mode .bot .message {
+    background: #eef1f7;
+}
+
+body.light-mode #searchInput {
+    color: #111;
+}
+
+body.light-mode .composer {
+    background: white;
+}
+
+@media(max-width:850px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        display: none;
+    }
+
+    .message {
+        max-width: 88%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="background">
+    <div class="light one"></div>
+    <div class="light two"></div>
+    <div class="light three"></div>
+</div>
+
+<div class="layout">
+
+<aside class="sidebar glass">
+
+    <div class="logo">🤖</div>
+    <h2>AI Search Robot</h2>
+    <div class="tagline" id="tagline">
+        Smart answers, anytime.
+    </div>
+
+    <div class="menu">
+        <button id="newChat" class="active">💬 New Chat</button>
+        <button id="historyButton">🕘 History</button>
+        <button id="savedButton">🔖 Saved Chats</button>
+        <button id="settingsButton">⚙️ Settings</button>
+        <button id="aboutButton">ⓘ About</button>
+    </div>
+
+    <div class="online">
+        <span class="dot"></span>
+        <span id="onlineText">Online</span>
+
+        <div class="model">
+            Llama 3.2:3B
+        </div>
+    </div>
+
+</aside>
+
+<main class="main glass">
+
+    <div class="topbar">
+
+        <div class="title">
+            <h1>AI Search Robot ✨</h1>
+            <p id="subtitle">
+                Ask anything. Get intelligent answers.
+            </p>
+        </div>
+
+        <div class="actions">
+            <button class="icon" id="saveButton">🔖</button>
+            <button class="icon" id="soundButton">🔊</button>
+            <button class="icon" id="themeButton">🌙</button>
+        </div>
+
+    </div>
+
+    <div class="chat" id="chat">
+
+        <div class="message-row bot">
+            <div class="message" id="welcomeMessage">
+                Hello! I'm your AI Search Robot. Ask me anything.
+            </div>
+        </div>
+
+    </div>
+
+    <div class="composer-area">
+
+        <div class="composer">
+
+            <button class="circle" id="speakButton">🎙️</button>
+
+            <input
+                id="searchInput"
+                placeholder="Type your message..."
+                autocomplete="off"
+            >
+
+            <button class="circle" id="sendButton">➤</button>
+
+        </div>
+
+        <div class="footer" id="footerText">
+            🔒 Your conversations stay on your local AI server.
+        </div>
+
+    </div>
+
+</main>
+</div>
+
+
+<!-- SETTINGS -->
+
+<div class="modal-bg" id="settingsModal">
+<div class="modal">
+
+    <h2 id="settingsTitle">⚙️ Settings</h2>
+
+    <label id="languageLabel">Language</label>
+
+    <select id="languageSelect">
+        <option value="en">English 🇬🇧</option>
+        <option value="tr">Türkçe 🇹🇷</option>
+        <option value="it">Italiano 🇮🇹</option>
+    </select>
+
+    <button class="close" onclick="closeModals()">
+        Close
+    </button>
+
+</div>
+</div>
+
+
+<!-- HISTORY / SAVED / ABOUT -->
+
+<div class="modal-bg" id="infoModal">
+<div class="modal">
+
+    <h2 id="infoTitle"></h2>
+
+    <div id="infoContent"></div>
+
+    <button class="close" onclick="closeModals()">
+        Close
+    </button>
+
+</div>
+</div>
+
+
+<script>
+
+const chat = document.getElementById("chat");
+const input = document.getElementById("searchInput");
+
+let voiceEnabled = true;
+let history = [];
+let savedChats = [];
+
+let language = localStorage.getItem("robotLanguage") || "en";
+
+
+const translations = {
+
+    en: {
+        subtitle: "Ask anything. Get intelligent answers.",
+        placeholder: "Type your message...",
+        welcome: "Hello! I'm your AI Search Robot. Ask me anything.",
+        online: "Online",
+        footer: "🔒 Your conversations stay on your local AI server.",
+        listening: "Listening...",
+        settings: "⚙️ Settings",
+        language: "Language"
+    },
+
+    tr: {
+        subtitle: "Her şeyi sor. Akıllı cevaplar al.",
+        placeholder: "Mesajını yaz...",
+        welcome: "Merhaba! Ben senin AI Search Robot'unum. Bana istediğini sor.",
+        online: "Çevrimiçi",
+        footer: "🔒 Konuşmaların yerel yapay zekâ sunucunda kalır.",
+        listening: "Dinliyorum...",
+        settings: "⚙️ Ayarlar",
+        language: "Dil"
+    },
+
+    it: {
+        subtitle: "Chiedi qualsiasi cosa. Ottieni risposte intelligenti.",
+        placeholder: "Scrivi il tuo messaggio...",
+        welcome: "Ciao! Sono il tuo AI Search Robot. Chiedimi qualsiasi cosa.",
+        online: "Online",
+        footer: "🔒 Le conversazioni restano sul tuo server AI locale.",
+        listening: "Sto ascoltando...",
+        settings: "⚙️ Impostazioni",
+        language: "Lingua"
+    }
+};
+
+
+function updateLanguage() {
+
+    const t = translations[language];
+
+    document.getElementById("subtitle").textContent = t.subtitle;
+    input.placeholder = t.placeholder;
+    document.getElementById("onlineText").textContent = t.online;
+    document.getElementById("footerText").textContent = t.footer;
+    document.getElementById("settingsTitle").textContent = t.settings;
+    document.getElementById("languageLabel").textContent = t.language;
+
+    localStorage.setItem("robotLanguage", language);
+}
+
+
+function addMessage(text, type) {
+
+    const row = document.createElement("div");
+    row.className = "message-row " + type;
+
+    const bubble = document.createElement("div");
+    bubble.className = "message";
+    bubble.textContent = text;
+
+    row.appendChild(bubble);
+    chat.appendChild(row);
+
+    chat.scrollTop = chat.scrollHeight;
+
+    return bubble;
+}
+
+
+async function askRobot() {
+
+    const question = input.value.trim();
+
+    if (!question) return;
+
+    addMessage(question, "user");
+
+    history.push({
+        role: "user",
+        text: question
+    });
+
+    input.value = "";
+
+    const thinking = addMessage("Thinking...", "bot");
+
+    try {
+
+        const response =
+            await fetch("http://127.0.0.1:8000/ask", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    question:
+                        "Please answer in " +
+                        (
+                            language === "tr"
+                            ? "Turkish"
+                            : language === "it"
+                            ? "Italian"
+                            : "English"
+                        ) +
+                        ". " +
+                        question
+                })
+
+            });
+
+        const data = await response.json();
+
+        thinking.textContent = data.answer;
+
+        history.push({
+            role: "assistant",
+            text: data.answer
+        });
+
+        if (voiceEnabled) {
+
+            const speech =
+                new SpeechSynthesisUtterance(data.answer);
+
+            speech.lang =
+                language === "tr"
+                ? "tr-TR"
+                : language === "it"
+                ? "it-IT"
+                : "en-US";
+
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(speech);
+        }
+
+    }
+
+    catch(error) {
+
+        thinking.textContent =
+            "Something went wrong. Please check the server.";
+    }
+}
+
+
+document.getElementById("sendButton")
+.addEventListener("click", askRobot);
+
+
+input.addEventListener("keydown", function(event) {
+
+    if(event.key === "Enter") {
+        askRobot();
+    }
+
+});
+
+
+/* MICROPHONE */
+
+document.getElementById("speakButton")
+.addEventListener("click", function() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if(!SpeechRecognition) {
+        addMessage(
+            "Speech recognition is not supported.",
+            "bot"
+        );
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+
+    recognition.lang =
+        language === "tr"
+        ? "tr-TR"
+        : language === "it"
+        ? "it-IT"
+        : "en-US";
+
+    recognition.onstart = function() {
+        document.getElementById("speakButton")
+        .textContent = "🔴";
+    };
+
+    recognition.onresult = function(event) {
+
+        input.value =
+            event.results[0][0].transcript;
+
+        askRobot();
+    };
+
+    recognition.onend = function() {
+
+        document.getElementById("speakButton")
+        .textContent = "🎙️";
+    };
+
+    recognition.start();
+
+});
+
+
+/* SOUND */
+
+document.getElementById("soundButton")
+.addEventListener("click", function() {
+
+    voiceEnabled = !voiceEnabled;
+
+    this.textContent =
+        voiceEnabled ? "🔊" : "🔇";
+
+    if(!voiceEnabled) {
+        speechSynthesis.cancel();
+    }
+
+});
+
+
+/* THEME */
+
+document.getElementById("themeButton")
+.addEventListener("click", function() {
+
+    document.body.classList.toggle("light-mode");
+
+    this.textContent =
+        document.body.classList.contains("light-mode")
+        ? "☀️"
+        : "🌙";
+
+});
+
+
+/* NEW CHAT */
+
+document.getElementById("newChat")
+.addEventListener("click", async function() {
+
+    try {
+
+        await fetch(
+            "http://127.0.0.1:8000/new-chat",
+            {method:"POST"}
+        );
+
+    } catch(error) {}
+
+    history = [];
+
+    chat.innerHTML = "";
+
+    addMessage(
+        translations[language].welcome,
+        "bot"
+    );
+
+});
+
+
+/* SETTINGS */
+
+document.getElementById("settingsButton")
+.addEventListener("click", function() {
+
+    document.getElementById("settingsModal")
+    .style.display = "flex";
+
+});
+
+
+document.getElementById("languageSelect")
+.addEventListener("change", function() {
+
+    language = this.value;
+
+    updateLanguage();
+
+});
+
+
+/* HISTORY */
+
+document.getElementById("historyButton")
+.addEventListener("click", function() {
+
+    document.getElementById("infoTitle")
+    .textContent = "🕘 History";
+
+    const content =
+        document.getElementById("infoContent");
+
+    content.innerHTML = "";
+
+    if(history.length === 0) {
+
+        content.textContent =
+            "No conversation history yet.";
+
+    } else {
+
+        history.forEach(item => {
+
+            const div =
+                document.createElement("div");
+
+            div.className = "history-item";
+
+            div.textContent =
+                (item.role === "user"
+                ? "You: "
+                : "AI: ") +
+                item.text;
+
+            content.appendChild(div);
+
+        });
+
+    }
+
+    document.getElementById("infoModal")
+    .style.display = "flex";
+
+});
+
+
+/* SAVE CHAT */
+
+document.getElementById("saveButton")
+.addEventListener("click", function() {
+
+    if(history.length === 0) return;
+
+    savedChats.push(
+        JSON.parse(JSON.stringify(history))
+    );
+
+    localStorage.setItem(
+        "savedChats",
+        JSON.stringify(savedChats)
+    );
+
+    addMessage("🔖 Chat saved.", "bot");
+
+});
+
+
+/* SAVED CHATS */
+
+document.getElementById("savedButton")
+.addEventListener("click", function() {
+
+    savedChats =
+        JSON.parse(
+            localStorage.getItem("savedChats")
+            || "[]"
+        );
+
+    document.getElementById("infoTitle")
+    .textContent = "🔖 Saved Chats";
+
+    const content =
+        document.getElementById("infoContent");
+
+    content.innerHTML = "";
+
+    if(savedChats.length === 0) {
+
+        content.textContent =
+            "No saved chats.";
+
+    } else {
+
+        savedChats.forEach(
+            (conversation,index) => {
+
+                const div =
+                    document.createElement("div");
+
+                div.className = "history-item";
+
+                div.textContent =
+                    "Saved Chat " + (index + 1) +
+                    " — " +
+                    conversation.length +
+                    " messages";
+
+                content.appendChild(div);
+
+            }
+        );
+
+    }
+
+    document.getElementById("infoModal")
+    .style.display = "flex";
+
+});
+
+
+/* ABOUT */
+
+document.getElementById("aboutButton")
+.addEventListener("click", function() {
+
+    document.getElementById("infoTitle")
+    .textContent = "🤖 About";
+
+    document.getElementById("infoContent")
+    .innerHTML =
+        "<p><b>AI Search Robot</b></p>" +
+        "<p>Powered locally by Llama 3.2 through Ollama.</p>" +
+        "<p>Supports text, voice and conversation memory.</p>";
+
+    document.getElementById("infoModal")
+    .style.display = "flex";
+
+});
+
+
+function closeModals() {
+
+    document.getElementById("settingsModal")
+    .style.display = "none";
+
+    document.getElementById("infoModal")
+    .style.display = "none";
+}
+
+
+document.getElementById("languageSelect").value =
+    language;
+
+updateLanguage();
+
+</script>
+
+</body>
+</html>
