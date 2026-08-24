@@ -110,11 +110,7 @@ CURRENT WEB SEARCH RESULTS:
             "content": robot_answer
         })
 
-        return {
-    "answer": "Something went wrong: " + str(error) +
-              " | Groq response: " +
-              (response.text if 'response' in locals() else "No response")
-}
+        
     except Exception as error:
         return {
             "answer": "Something went wrong: " + str(error)
