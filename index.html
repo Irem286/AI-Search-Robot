@@ -593,7 +593,7 @@ async function askRobot() {
     try {
 
         const response =
-            await fetch("http://127.0.0.1:8000/ask", {
+            await fetch("https://career-survey-amy-order.trycloudflare.com/ask", {
 
                 method: "POST",
 
@@ -755,8 +755,10 @@ document.getElementById("newChat")
     try {
 
         await fetch(
-            "http://127.0.0.1:8000/new-chat",
-            {method:"POST"}
+            "https://career-survey-amy-order.trycloudflare.com/new-chat",
+            {
+                method: "POST"
+            }
         );
 
     } catch(error) {}

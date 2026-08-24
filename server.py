@@ -2,9 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
-from ddgs import DDGS
+from ddgs import DDGS  
 app = FastAPI()
-
+import os
 # Allow the website to communicate with the Python server
 app.add_middleware(
     CORSMiddleware,
@@ -85,19 +85,25 @@ CURRENT WEB SEARCH RESULTS:
         )
 
         response = requests.post(
-            "http://localhost:11434/api/chat",
-            json={
-                "model": "llama3.2:3b",
-                "messages": messages_for_ai,
-                "stream": False
-            },
-            timeout=120
-        )
+    "https://api.groq.com/openai/v1/chat/completions",
+    headers={
+        "Authorization": f"Bearer {os.environ.get('GROQ_API_KEY')}",
+        "Content-Type": "application/json"
+    },
+    json={
+        "model": "llama-3.1-8b-instant",
+        "messages": messages_for_ai,
+        "temperature": 0.7
+    },
+    timeout=60
+)
+            
+        
 
         response.raise_for_status()
 
         result = response.json()
-        robot_answer = result["message"]["content"]
+        robot_answer = result["choices"][0]["message"]["content"]
 
         conversation_history.append({
             "role": "assistant",
