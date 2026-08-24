@@ -50,7 +50,7 @@ def ask_question(data: Question):
 
     try:
         # Search the web for the current question
-        web_results = search_web(data.question)
+        web_results = "Web search is temporarily unavailable."
 
         web_context = {
             "role": "system",
