@@ -99,7 +99,7 @@ CURRENT WEB SEARCH RESULTS:
 )
             
         
-
+        print(response.status_code, response.text)
         response.raise_for_status()
 
         result = response.json()
@@ -111,9 +111,10 @@ CURRENT WEB SEARCH RESULTS:
         })
 
         return {
-            "answer": robot_answer
-        }
-
+    "answer": "Something went wrong: " + str(error) +
+              " | Groq response: " +
+              (response.text if 'response' in locals() else "No response")
+}
     except Exception as error:
         return {
             "answer": "Something went wrong: " + str(error)
