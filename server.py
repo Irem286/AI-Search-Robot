@@ -91,7 +91,7 @@ CURRENT WEB SEARCH RESULTS:
         "Content-Type": "application/json"
     },
     json={
-        "model": "llama-3.1-8b-instant",
+        "model": "openai/gpt-oss-20b",
         "messages": messages_for_ai,
         "temperature": 0.7
     },
