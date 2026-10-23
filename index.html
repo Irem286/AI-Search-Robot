@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Search Robot</title>
+<title>Mirea GPT</title>
 
 <style>
 * {
@@ -406,7 +406,7 @@ body.light-mode .composer {
 <aside class="sidebar glass">
 
     <div class="logo">🤖</div>
-    <h2>AI Search Robot</h2>
+    <h2>Mirea GPT</h2>
     <div class="tagline" id="tagline">
         Smart answers, anytime.
     </div>
@@ -435,9 +435,9 @@ body.light-mode .composer {
     <div class="topbar">
 
         <div class="title">
-            <h1>AI Search Robot ✨</h1>
+            <h1>Mirea GPT ✨</h1>
             <p id="subtitle">
-                Ask anything. Get intelligent answers.
+                Your personal AI assistant, powered by intelligence.
             </p>
         </div>
 
@@ -453,7 +453,7 @@ body.light-mode .composer {
 
         <div class="message-row bot">
             <div class="message" id="welcomeMessage">
-                Hello! I'm your AI Search Robot. Ask me anything.
+               Hello! I'm Mirea GPT, your personal AI assistant. How can I help you today?
             </div>
         </div>
 
@@ -593,9 +593,8 @@ async function askRobot() {
     try {
 
         const response =
-            await fetch("https://ai-search-robot.onrender.com/ask", {
-
-                method: "POST",
+         await fetch("http://127.0.0.1:8000/ask", {
+    method: "POST", 
 
                 headers: {
                     "Content-Type": "application/json"
@@ -755,7 +754,7 @@ document.getElementById("newChat")
     try {
 
         await fetch(
-            "https://career-survey-amy-order.trycloudflare.com/new-chat",
+            "http://127.0.0.1:8000/new-chat",
             {
                 method: "POST"
             }
@@ -925,7 +924,7 @@ document.getElementById("aboutButton")
 
     document.getElementById("infoContent")
     .innerHTML =
-        "<p><b>AI Search Robot</b></p>" +
+        "<p><b>Mirea GPT</b></p>" +
         "<p>Powered locally by Llama 3.2 through Ollama.</p>" +
         "<p>Supports text, voice and conversation memory.</p>";
 
