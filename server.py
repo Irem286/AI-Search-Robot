@@ -84,39 +84,46 @@ CURRENT WEB SEARCH RESULTS:
             + conversation_history
         )
 
+      
         response = requests.post(
-    "https://api.groq.com/openai/v1/chat/completions",
-    headers={
-        "Authorization": f"Bearer {os.environ.get('GROQ_API_KEY')}",
-        "Content-Type": "application/json"
-    },
+    "http://127.0.0.1:11434/api/chat",
     json={
-        "model": "openai/gpt-oss-20b",
+        "model": "llama3.2:3b",
         "messages": messages_for_ai,
-        "temperature": 0.7
+        "stream": False,
+        "options": {
+            "temperature": 0.7
+        }
     },
-    timeout=60
+    timeout=180
 )
+
             
         
         print(response.status_code, response.text)
         response.raise_for_status()
-
+  
         result = response.json()
         robot_answer = result["choices"][0]["message"]["content"]
+
+
+       
 
         conversation_history.append({
             "role": "assistant",
             "content": robot_answer
         })
 
-        
+        return {"answer": robot_answer}
+
     except Exception as error:
         return {
             "answer": "Something went wrong: " + str(error)
         }
-def new_chat():
 
+
+@app.post("/new-chat")
+def new_chat():
     global conversation_history
 
     conversation_history = []
