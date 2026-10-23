@@ -85,19 +85,20 @@ CURRENT WEB SEARCH RESULTS:
         )
 
       
+        
         response = requests.post(
-    "http://127.0.0.1:11434/api/chat",
-    json={
-        "model": "llama3.2:3b",
-        "messages": messages_for_ai,
-        "stream": False,
-        "options": {
-            "temperature": 0.7
-        }
-    },
-    timeout=180
-)
-
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {os.environ['GROQ_API_KEY']}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "openai/gpt-oss-20b",
+                "messages": messages_for_ai,
+                "temperature": 0.7
+            },
+            timeout=180
+                )
             
         
         print(response.status_code, response.text)
